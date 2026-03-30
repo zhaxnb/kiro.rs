@@ -54,19 +54,36 @@ function normalizeKamAccount(item: unknown): unknown {
   const obj = item as Record<string, unknown>
   // 新格式：refreshToken 直接在账号对象上，无 credentials 嵌套
   if (typeof obj.refreshToken === 'string' && typeof obj.credentials === 'undefined') {
+    const email = typeof obj.email === 'string' ? obj.email : undefined
+    const userId =
+      typeof obj.userId === 'string' || obj.userId === null ? (obj.userId as string | null) : undefined
+    const nickname =
+      typeof obj.nickname === 'string'
+        ? obj.nickname
+        : typeof obj.label === 'string'
+          ? (obj.label as string)
+          : undefined
+    const status = typeof obj.status === 'string' ? obj.status : undefined
+    const machineId = typeof obj.machineId === 'string' ? obj.machineId : undefined
+    const clientId = typeof obj.clientId === 'string' ? obj.clientId : undefined
+    const clientSecret = typeof obj.clientSecret === 'string' ? obj.clientSecret : undefined
+    const region = typeof obj.region === 'string' ? obj.region : undefined
+    const authMethod = typeof obj.authMethod === 'string' ? obj.authMethod : undefined
+    const startUrl = typeof obj.startUrl === 'string' ? obj.startUrl : undefined
+
     return {
-      email: obj.email,
-      userId: obj.userId,
-      nickname: obj.label,
-      status: obj.status,
-      machineId: obj.machineId,
+      email,
+      userId,
+      nickname,
+      status,
+      machineId,
       credentials: {
         refreshToken: obj.refreshToken,
-        clientId: obj.clientId,
-        clientSecret: obj.clientSecret,
-        region: obj.region,
-        authMethod: obj.authMethod,
-        startUrl: obj.startUrl,
+        clientId,
+        clientSecret,
+        region,
+        authMethod,
+        startUrl,
       },
     }
   }
@@ -399,7 +416,7 @@ export function KamImportDialog({ open, onOpenChange }: KamImportDialogProps) {
           <div className="space-y-2">
             <label className="text-sm font-medium">KAM 导出 JSON</label>
             <textarea
-              placeholder={'粘贴 Kiro Account Manager 导出的 JSON\n\n支持 KAM 1.8.3+ 新版平铺格式：\n[\n  {\n    "email": "...",\n    "refreshToken": "...",\n    "clientId": "...",\n    "clientSecret": "...",\n    "region": "us-east-1",\n    "authMethod": "IdC"\n  }\n]\n\n也支持旧版嵌套格式：\n{\n  "version": "1.5.0",\n  "accounts": [\n    {\n      "email": "...",\n      "credentials": {\n        "refreshToken": "...",\n        "clientId": "...",\n        "clientSecret": "...",\n        "region": "us-east-1"\n      }\n    }\n  ]\n}'}
+              placeholder={'粘贴 Kiro Account Manager 导出的 JSON\n\n支持 KAM 1.8.3+ 新版平铺格式：\n[\n  {\n    "email": "...",\n    "refreshToken": "...",\n    "clientId": "...",\n    "clientSecret": "...",\n    "region": "us-east-1"\n  }\n]\n\n（可选的 authMethod 字段会被忽略，系统会根据 clientId/clientSecret 自动判断）\n\n也支持旧版嵌套格式：\n{\n  "version": "1.5.0",\n  "accounts": [\n    {\n      "email": "...",\n      "credentials": {\n        "refreshToken": "...",\n        "clientId": "...",\n        "clientSecret": "...",\n        "region": "us-east-1"\n      }\n    }\n  ]\n}'}
               value={jsonInput}
               onChange={(e) => setJsonInput(e.target.value)}
               disabled={importing}
